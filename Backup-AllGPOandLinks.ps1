@@ -6,6 +6,14 @@ $gporetentiondays= 7
 
 Write-Host "Creating new folder for $currentdate under $gpolocation if necessary..." -ForegroundColor Yellow
 if (-not (Get-Item "$gpolocation\$currentdate" -ErrorAction SilentlyContinue)) { New-Item -Path $gpolocation -ItemType Directory -Name $currentdate}
+    else {
+            Write-Host "$gpolocation already exits. Deleting the current folder structure..."
+            Remove-Item "$gpolocation\$currentdate"  -Recurse -Force
+            New-Item -Path $gpolocation -ItemType Directory -Name $currentdate
+        }
+if (Get-Item "$gpolocation\$currentdate" -ErrorAction SilentlyContinue) { New-Item -Path "$gpolocation\$currentdate" -ItemType Directory -Name GPOPermissions}
+    else {Throw 'Error: folder structure was not created'}
+
 
 Start-Transcript -Path "$gpolocation\$currentdate\GPOBackup_$currentdate.log" -Force
 
@@ -27,10 +35,23 @@ Write-Host "Exporting All GPOs..." -ForegroundColor Yellow
 $allgpos = Get-GPO -All
 foreach ($gpo in $allgpos) {
 Backup-GPO -Name $gpo.displayname -Path "$gpolocation\$currentdate" -Comment "$currentdate"
+(get-acl  "AD:\$($gpo.Path)").Access | where {$_.IsInherited -eq $false -and $_.ObjectType -eq 'edacfd8f-ffb3-11d1-b41d-00a0c968f939'} `
+        | Export-Csv -LiteralPath "$gpolocation\$currentdate\GPOPermissions\$($GPO.Id).csv" #Filter for only ApplyGroupPolicy permissions 
 }
 
+<# Default Identities on a GPO:
+CREATOR OWNER                             
+NT AUTHORITY\ENTERPRISE DOMAIN CONTROLLERS
+NT AUTHORITY\Authenticated Users          
+NT AUTHORITY\SYSTEM                       
+RICHCAN\Domain Admins                     
+RICHCAN\Enterprise Admins                 
+NT AUTHORITY\Authenticated User or Domain Computers --> by default has ApplyGroupPolicy permissions
+
+'edacfd8f-ffb3-11d1-b41d-00a0c968f939' --> ApplyGroupPolicy GUID
+#>
 
 
 
-
+Stop-Transcript
 
