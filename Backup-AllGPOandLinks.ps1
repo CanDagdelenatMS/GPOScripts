@@ -1,10 +1,13 @@
 ﻿
-#This script is based on get-gplink script which was published on technet and written by Thomas Bouchereau.
 . .\get-gplink_V1.3.ps1
 $gpolocation = "c:\gpo\"
 $currentdate = (get-date).ToString("ddMMyyyy")
 $gporetentiondays= 7
-Start-Transcript -Path "$gpolocation\GPOBackup_$currentdate.log" -Force
+
+Write-Host "Creating new folder for $currentdate under $gpolocation if necessary..." -ForegroundColor Yellow
+if (-not (Get-Item "$gpolocation\$currentdate" -ErrorAction SilentlyContinue)) { New-Item -Path $gpolocation -ItemType Directory -Name $currentdate}
+
+Start-Transcript -Path "$gpolocation\$currentdate\GPOBackup_$currentdate.log" -Force
 
 #Delete folders older than $gporetentionday days
 Write-Host "Deleting folders older than $gporetentiondays if necessary..." -ForegroundColor Yellow
@@ -14,8 +17,6 @@ if ($folder.CreationTimeUtc.Date -lt (Get-Date).Date.AddDays(-7)) {
     Remove-Item $folder.FullName -Recurse -Force -Confirm:$false}
 } 
 
-Write-Host "Creating new folder for $currentdate under $gpolocation if necessary..." -ForegroundColor Yellow
-if (-not (Get-Item "$gpolocation\$currentdate" -ErrorAction SilentlyContinue)) { New-Item -Path $gpolocation -ItemType Directory -Name $currentdate}
 
 Write-Host "Exporting GP Links..." -ForegroundColor Yellow
 #Export All GP Links
