@@ -35,8 +35,8 @@ Write-Host "Exporting All GPOs..." -ForegroundColor Yellow
 $allgpos = Get-GPO -All
 foreach ($gpo in $allgpos) {
 Backup-GPO -Name $gpo.displayname -Path "$gpolocation\$currentdate" -Comment "$currentdate"
-(get-acl  "AD:\$($gpo.Path)").Access | where {$_.IsInherited -eq $false -and $_.ObjectType -eq 'edacfd8f-ffb3-11d1-b41d-00a0c968f939'} `
-        | Export-Csv -LiteralPath "$gpolocation\$currentdate\GPOPermissions\$($GPO.Id).csv" #Filter for only ApplyGroupPolicy permissions 
+(get-acl  "AD:\$($gpo.Path)").Access | where {$_.IsInherited -eq $false -and $_.AccessControlType -eq "Deny"} `
+        | Export-Csv -LiteralPath "$gpolocation\$currentdate\GPOPermissions\$($GPO.Id).csv" #Filter for only deny permissions
 }
 
 <# Default Identities on a GPO:
