@@ -28,7 +28,7 @@ if ($folder.CreationTimeUtc.Date -lt (Get-Date).Date.AddDays(-7)) {
 
 Write-Host "Exporting GP Links..." -ForegroundColor Yellow
 #Export All GP Links
-Get-ADOrganizationalUnit -Filter * | foreach {Get-Gplink -path $_.DistinguishedName} | Export-csv -Path "$gpolocation\$currentdate\gplink.csv" -Encoding Unicode -Delimiter
+Get-ADOrganizationalUnit -Filter * | foreach {Get-Gplink -path $_.DistinguishedName} | Export-csv -Path "$gpolocation\$currentdate\gplink.csv" -Encoding Unicode -Delimiter ";"
 
 Write-Host "Exporting All GPOs..." -ForegroundColor Yellow
 #Export All GPOs
