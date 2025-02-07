@@ -1,4 +1,4 @@
-﻿
+﻿#requires -runasadministrator
 . .\get-gplink_V1.3.ps1
 $gpolocation = "c:\gpo\"
 $currentdate = (get-date).ToString("ddMMyyyy")
